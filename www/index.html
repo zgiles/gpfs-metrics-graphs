@@ -1,0 +1,300 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title> - jsFiddle demo</title>
+<script type='text/javascript' src='jquery.min.js'></script>
+<script src="highcharts.js"></script>
+
+<script type='text/javascript'>
+
+var bwchartoptions = {
+        credits:{enabled:false},
+        chart: {
+            renderTo: 'container1',
+            type: 'line'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'left',
+            verticalAlign: 'top',
+            floating: true,
+            x: 100,
+            y: 50
+        },
+        title: {
+            text: 'GPFS Bandwidth Load on cluster'
+        },
+        subtitle: {
+            text: 'in bytes per second'
+        },
+	plotOptions: {
+            line: {
+                marker: {
+                    enabled: false
+                },
+                states: 
+                    hover: {
+                        enabled: false
+                    }
+                }
+            }
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: [{
+            title: {
+                text: 'bps'
+            },
+            min: 0
+        }, {
+            title: {
+                text: 'bps'
+            },
+            opposite: true,
+            min: 0
+	}],
+        tooltip: {
+            formatter: function () {
+                return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat('%e. %b', this.x) + ': ' + this.y + ' m';
+            }
+        },
+        series:[]
+};
+
+var iopschartoptions = {
+        credits:{enabled:false},
+        chart: {
+            renderTo: 'container2',
+            type: 'line'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'left',
+            verticalAlign: 'top',
+            floating: true,
+            x: 100,
+            y: 50
+        },
+        title: {
+            text: 'GPFS IOPS Load on cluster'
+        },
+        subtitle: {
+            text: 'in IOPS'
+        },
+	plotOptions: {
+            line: {
+                marker: {
+                    enabled: false
+                },
+                states: {
+                    hover: {
+                        enabled: false
+                    }
+                }
+            }
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: [{
+            title: {
+                text: 'ops'
+            },
+            min: 0
+          }, {
+            title: {
+                text: 'ops'
+            },
+//	    max: 1000,
+            min: 0,
+            opposite: true
+	  }],
+        tooltip: {
+            formatter: function () {
+                return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat('%e. %b', this.x) + ': ' + this.y + ' m';
+            }
+        },
+        series:[]
+};
+
+var openschartoptions = {
+        credits:{enabled:false},
+        chart: {
+            renderTo: 'container3',
+            type: 'line'
+        },
+        legend: {
+            layout: 'vertical',
+            floating: true,
+            align: 'left',
+            verticalAlign: 'top',
+            x: 100,
+            y: 50
+        },
+        title: {
+            text: 'GPFS Open/Close Load on cluster'
+        },
+        subtitle: {
+            text: 'in number of'
+        },
+	plotOptions: {
+            line: {
+                marker: {
+                    enabled: false
+                },
+                states: {
+                    hover: {
+                        enabled: false
+                    }
+                }
+            }
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: [{
+            title: {
+                text: 'quantity'
+            },
+            min: 0
+        }, {
+            title: {
+                text: 'quantity'
+            },
+            min: 0,
+	    max: 10,
+            opposite: true
+	}],
+        tooltip: {
+            formatter: function () {
+                return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat('%e. %b', this.x) + ': ' + this.y + ' m';
+            }
+        },
+        series:[]
+};
+
+var timezoneoffset = -14400000
+var seriesarr1 = {name: "gpfs_br", data: []};
+var seriesarr2 = {name: "gpfs_bw", data: []};
+var seriesarr3 = {name: "gpfs_rdc", data: []};
+var seriesarr4 = {name: "gpfs_wc", data: []};
+var seriesarr5 = {name: "gpfs_dir", yAxis: 1, data: []};
+var seriesarr6 = {name: "gpfs_iu", yAxis: 1, data: []};
+var seriesarr7 = {name: "sfa_kb", data: []};
+var seriesarr8 = {name: "sfa_iops", data: []};
+var seriesarr9 = {name: "sfa_riops", data: []};
+var seriesarr10 = {name: "sfa_wiops", data: []};
+var seriesarr11 = {name: "3015_kb", yAxis:1, data: []};
+var seriesarr12 = {name: "3015_iops", yAxis:1, data: []};
+bwchartoptions.series.push(seriesarr1);
+bwchartoptions.series.push(seriesarr2);
+iopschartoptions.series.push(seriesarr3);
+iopschartoptions.series.push(seriesarr4);
+iopschartoptions.series.push(seriesarr5);
+iopschartoptions.series.push(seriesarr6);
+bwchartoptions.series.push(seriesarr7);
+openschartoptions.series.push(seriesarr8);
+openschartoptions.series.push(seriesarr9);
+openschartoptions.series.push(seriesarr10);
+bwchartoptions.series.push(seriesarr11);
+iopschartoptions.series.push(seriesarr12);
+var charts = {};
+var refresh = 7000;
+var end = ""; 
+var start = ""; 
+
+$.urlParam = function(name){
+    var results = new RegExp('[\\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    if (results == null) { 
+	return "";
+    } else { 
+    	return results[1] || 0;
+    }
+}
+
+$(document).ready(function() {
+charts[1] = new Highcharts.Chart(bwchartoptions);
+charts[2] = new Highcharts.Chart(iopschartoptions);
+charts[3] = new Highcharts.Chart(openschartoptions);
+end = $.urlParam("end");
+start = $.urlParam("start");
+redogpfscharts();
+redosfacharts();
+redoef3015charts();
+// end of document ready
+});
+
+function redogpfscharts() {
+	seriesarr1.data=[];
+	seriesarr2.data=[];
+	seriesarr3.data=[];
+	seriesarr4.data=[];
+	seriesarr5.data=[];
+	seriesarr6.data=[];
+// $.getJSON("/gpfsgraph/data.php?limit=" + $("#historybox").val(),function(jdata) {
+$.getJSON("/gpfsgraph/gpfsdata.php?start=" + start + "&end=" + end,function(jdata) {
+	$.each(jdata, function(key, data2) {
+		seriesarr1.data.push([parseInt(data2["timestamp"]*1000+timezoneoffset),parseInt(data2["br"])]);
+		seriesarr2.data.push([parseInt(data2["timestamp"]*1000+timezoneoffset),parseInt(data2["bw"])]);
+		seriesarr3.data.push([parseInt(data2["timestamp"]*1000+timezoneoffset),parseInt(data2["rdc"])]);
+		seriesarr4.data.push([parseInt(data2["timestamp"]*1000+timezoneoffset),parseInt(data2["wc"])]);
+		seriesarr5.data.push([parseInt(data2["timestamp"]*1000+timezoneoffset),parseInt(data2["dir"])]);
+		seriesarr6.data.push([parseInt(data2["timestamp"]*1000+timezoneoffset),parseInt(data2["iu"])]);
+  	});
+	charts[1].series[0].setData(seriesarr1.data,true);
+	charts[1].series[1].setData(seriesarr2.data,true);
+	charts[2].series[0].setData(seriesarr3.data,true);
+	charts[2].series[1].setData(seriesarr4.data,true);
+	charts[2].series[2].setData(seriesarr5.data,true);
+	charts[2].series[3].setData(seriesarr6.data,true);
+// end of getJSON
+}).always( function() { setTimeout(redogpfscharts,7000); });
+// end of redogpfscharts
+};
+
+function redosfacharts() {
+	seriesarr7.data=[];
+	seriesarr8.data=[];
+	seriesarr9.data=[];
+	seriesarr10.data=[];
+$.getJSON("/gpfsgraph/sfadata.php?start=" + start + "&end=" + end,function(jdata) {
+	$.each(jdata, function(key, data2) {
+		seriesarr7.data.push([parseInt(data2["timestamp"]*1000+timezoneoffset),parseInt(data2["kb"])*1000]);
+		seriesarr8.data.push([parseInt(data2["timestamp"]*1000+timezoneoffset),parseInt(data2["iops"])]);
+		seriesarr9.data.push([parseInt(data2["timestamp"]*1000+timezoneoffset),parseInt(data2["riops"])]);
+		seriesarr10.data.push([parseInt(data2["timestamp"]*1000+timezoneoffset),parseInt(data2["wiops"])]);
+  	});
+	charts[1].series[2].setData(seriesarr7.data,true);
+	charts[3].series[0].setData(seriesarr8.data,true);
+	charts[3].series[1].setData(seriesarr9.data,true);
+	charts[3].series[2].setData(seriesarr10.data,true);
+// end of getJSON
+}).always( function() { setTimeout(redosfacharts,7000); });
+// end of redocharts
+}
+
+function redoef3015charts() {
+	seriesarr11.data=[];
+	seriesarr12.data=[];
+$.getJSON("/gpfsgraph/ef3015data.php?start=" + start + "&end=" + end,function(jdata) {
+	$.each(jdata, function(key, data2) {
+		seriesarr11.data.push([parseInt(data2["timestamp"]*1000+timezoneoffset),parseInt(data2["bps"])]);
+		seriesarr12.data.push([parseInt(data2["timestamp"]*1000+timezoneoffset),parseInt(data2["iops"])]);
+  	});
+	charts[1].series[3].setData(seriesarr11.data,true);
+	charts[2].series[4].setData(seriesarr12.data,true);
+// end of getJSON
+}).always( function() { setTimeout(redoef3015charts,7000); });
+// end of redocharts
+}
+
+</script>
+</head>
+<body>
+<!-- <form name="statsform"><input type="text" size="5" value="1440" id="historybox" alt="history"></form> -->
+<div id="container1" style="min-width: 400px; height: 330px; margin: 0 auto"></div>
+<div id="container2" style="min-width: 400px; height: 330px; margin: 0 auto"></div>
+<div id="container3" style="min-width: 400px; height: 330px; margin: 0 auto"></div>
+</body>
+</html>

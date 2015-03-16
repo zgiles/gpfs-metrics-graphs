@@ -1,0 +1,39 @@
+23d22
+< import MySQLdb
+64c63
+< def rates(now, item0, item1, item2):
+---
+> def rates(item0, item1, item2):
+80d78
+<     query = "SELECT \"none\""
+82,90c80,83
+<         query = "INSERT INTO sfavdcounters VALUES (DEFAULT, 0, 0, '{0}', '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}');".format(
+<             now, item0.Index, int(sum(KB_rate)), int(sum(IO_rate)), 
+<             int(sum([(KB_rate[i] / IO_rate[i]) if IO_rate[i] != 0 else 0 for i in range(len(KB_rate))])),
+<             int(sum(R_IO_rate)), int(sum(W_IO_rate)), int(sum([item2.ForwardedIOs[i] - item1.ForwardedIOs[i] for i in range(len(item1.ForwardedIOs))])) )
+<         return query
+< #    query = "INSERT INTO sfavdcounters VALUES (DEFAULT, 0, 0, '{0}', '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}');".format(
+< #        now, item0.Index, int(sum(KB_rate)), int(sum(IO_rate)), 
+< #        int(sum([(KB_rate[i] / IO_rate[i]) if IO_rate[i] != 0 else 0 for i in range(len(KB_rate))])),
+< #        int(sum(R_IO_rate)), int(sum(W_IO_rate)), int(sum([item2.ForwardedIOs[i] - item1.ForwardedIOs[i] for i in range(len(item1.ForwardedIOs))])) )
+---
+>         print "{0} VD[{1}] Ctrl[0, 1], KBPS{2}, IOPS{3}, KBIO{4}, RIOPS{5}, WIOPS{6}, FWIOS{7}".format(
+>             mktime(localtime()), item0.Index, KB_rate, IO_rate, 
+>             [(KB_rate[i] / IO_rate[i]) if IO_rate[i] != 0 else 0 for i in range(len(KB_rate))],
+>             R_IO_rate, W_IO_rate, [item2.ForwardedIOs[i] - item1.ForwardedIOs[i] for i in range(len(item1.ForwardedIOs))])
+128,129d120
+<     now = int(time.time())
+< 
+131,140c122
+<         try:
+<             db = MySQLdb.connect(host="db1", user="usernamefordb", passwd="passwordfordb", db="dbasename")
+<             cur = db.cursor()
+<             query = rates(now, vd, vdStats1[vdList.index(vd)], vdStats2[vdList.index(vd)])
+<             if query is not None:
+<                  cur.execute(query)
+<             db.commit()
+<         except MySQLdb.Error, e:
+<             print "Error: %s" %e
+<             print query
+---
+>         rates(vd, vdStats1[vdList.index(vd)], vdStats2[vdList.index(vd)])
